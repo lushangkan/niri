@@ -656,6 +656,21 @@ impl State {
             touch.cancel(self);
         }
 
+        if matches!(
+            &action,
+            Action::FullscreenWindow
+                | Action::FullscreenWindowById(_)
+                | Action::MaximizeWindowToEdges
+                | Action::MaximizeWindowToEdgesById(_)
+                | Action::ToggleWindowFloating
+                | Action::ToggleWindowFloatingById(_)
+                | Action::MoveWindowToFloating
+                | Action::MoveWindowToFloatingById(_)
+                | Action::MoveFloatingWindowById { .. }
+        ) {
+            self.niri.update_layout_pointer_position();
+        }
+
         match action {
             Action::Quit(skip_confirmation) => {
                 if !skip_confirmation && self.niri.exit_confirm_dialog.show() {

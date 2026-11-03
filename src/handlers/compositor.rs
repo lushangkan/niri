@@ -201,6 +201,8 @@ impl CompositorHandler for State {
                     };
                     let window = mapped.window.clone();
 
+                    self.niri.update_layout_pointer_position();
+
                     let target = if let Some(p) = &parent {
                         // Open dialogs next to their parent window.
                         AddWindowTarget::NextTo(p)
@@ -349,6 +351,7 @@ impl CompositorHandler for State {
                 if let Some(delta) = buffer_delta {
                     if delta.x != 0 || delta.y != 0 {
                         let (x, y) = delta.to_f64().into();
+                        self.niri.update_layout_pointer_position();
                         self.niri.layout.move_floating_window(
                             Some(&window),
                             PositionChange::AdjustFixed(x),

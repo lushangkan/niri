@@ -14,6 +14,7 @@ use smithay::utils::Rectangle;
 use super::*;
 
 mod animations;
+mod floating_position;
 mod fullscreen;
 
 impl<W: LayoutElement> Default for Layout<W> {
@@ -404,6 +405,10 @@ fn arbitrary_column_display() -> impl Strategy<Value = ColumnDisplay> {
     prop_oneof![Just(ColumnDisplay::Normal), Just(ColumnDisplay::Tabbed)]
 }
 
+fn arbitrary_pointer_position() -> impl Strategy<Value = Option<(usize, f64, f64)>> {
+    prop::option::of((1..=5usize, -20000f64..20000f64, -20000f64..20000f64))
+}
+
 #[derive(Debug, Clone, Arbitrary)]
 enum Op {
     AddOutput(#[proptest(strategy = "1..=5usize")] usize),
@@ -749,6 +754,10 @@ enum Op {
         window: usize,
     },
     ToggleOverview,
+    UpdatePointerPosition {
+        #[proptest(strategy = "arbitrary_pointer_position()")]
+        position: Option<(usize, f64, f64)>,
+    },
     UpdateConfig {
         #[proptest(strategy = "arbitrary_layout_part().prop_map(Box::new)")]
         layout_config: Box<niri_config::LayoutPart>,
@@ -1616,6 +1625,15 @@ impl Op {
             }
             Op::ToggleOverview => {
                 layout.toggle_overview();
+            }
+            Op::UpdatePointerPosition { position } => {
+                let position = position.and_then(|(output_idx, px, py)| {
+                    let name = format!("output{output_idx}");
+                    let output = layout.outputs().find(|o| o.name() == name).cloned()?;
+                    Some((output, Point::from((px, py))))
+                });
+
+                layout.update_pointer_position(position.as_ref().map(|(o, p)| (o, *p)));
             }
             Op::UpdateConfig { layout_config } => {
                 let options = Options {

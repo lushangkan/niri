@@ -67,6 +67,13 @@ pub struct FloatingSpace<W: LayoutElement> {
 
     /// Configurable properties of the layout.
     options: Rc<Options>,
+
+    /// Pointer position in workspace view coordinates.
+    ///
+    /// Only used for placing new floating windows relative to the pointer ("cursor" relative-to).
+    /// The compositor updates this immediately before placement operations, so it never tracks
+    /// pointer motion.
+    pointer_position: Option<Point<f64, Logical>>,
 }
 
 niri_render_elements! {
@@ -218,7 +225,16 @@ impl<W: LayoutElement> FloatingSpace<W> {
             scale,
             clock,
             options,
+            pointer_position: None,
         }
+    }
+
+    /// Updates the pointer position stored for placing new floating windows.
+    ///
+    /// The position is in workspace view coordinates. Pass `None` when the pointer isn't over
+    /// this workspace.
+    pub fn set_pointer_position(&mut self, position: Option<Point<f64, Logical>>) {
+        self.pointer_position = position;
     }
 
     pub fn update_config(
@@ -1273,36 +1289,47 @@ impl<W: LayoutElement> FloatingSpace<W> {
     }
 
     pub fn stored_or_default_tile_pos(&self, tile: &Tile<W>) -> Option<Point<f64, Logical>> {
-        let pos = tile.floating_pos.map(|pos| self.scale_by_working_area(pos));
-        pos.or_else(|| {
-            tile.window().rules().default_floating_position.map(|pos| {
-                let relative_to = pos.relative_to;
-                let size = tile.tile_size();
-                let area = self.working_area;
+        // The position from when the window was floating before always wins.
+        if let Some(pos) = tile.floating_pos {
+            return Some(self.scale_by_working_area(pos));
+        }
 
-                let mut pos = Point::from((pos.x.0, pos.y.0));
-                if relative_to == RelativeTo::TopRight
-                    || relative_to == RelativeTo::BottomRight
-                    || relative_to == RelativeTo::Right
-                {
-                    pos.x = area.size.w - size.w - pos.x;
-                }
-                if relative_to == RelativeTo::BottomLeft
-                    || relative_to == RelativeTo::BottomRight
-                    || relative_to == RelativeTo::Bottom
-                {
-                    pos.y = area.size.h - size.h - pos.y;
-                }
-                if relative_to == RelativeTo::Top || relative_to == RelativeTo::Bottom {
-                    pos.x += area.size.w / 2.0 - size.w / 2.0
-                }
-                if relative_to == RelativeTo::Left || relative_to == RelativeTo::Right {
-                    pos.y += area.size.h / 2.0 - size.h / 2.0
-                }
+        let config = tile.window().rules().default_floating_position?;
+        let relative_to = config.relative_to;
+        let size = tile.tile_size();
+        let area = self.working_area;
 
-                pos + self.working_area.loc
-            })
-        })
+        let mut pos = Point::from((config.x.0, config.y.0));
+
+        if relative_to == RelativeTo::Cursor {
+            // Place the window's top-left corner at the pointer plus the configured offset.
+            // Without a known pointer position, there's nothing to place the window relative to,
+            // so let the caller use its regular default placement.
+            let pointer = self.pointer_position?;
+            let pos = pointer + pos;
+            return Some(self.clamp_within_working_area(pos, size));
+        }
+
+        if relative_to == RelativeTo::TopRight
+            || relative_to == RelativeTo::BottomRight
+            || relative_to == RelativeTo::Right
+        {
+            pos.x = area.size.w - size.w - pos.x;
+        }
+        if relative_to == RelativeTo::BottomLeft
+            || relative_to == RelativeTo::BottomRight
+            || relative_to == RelativeTo::Bottom
+        {
+            pos.y = area.size.h - size.h - pos.y;
+        }
+        if relative_to == RelativeTo::Top || relative_to == RelativeTo::Bottom {
+            pos.x += area.size.w / 2.0 - size.w / 2.0
+        }
+        if relative_to == RelativeTo::Left || relative_to == RelativeTo::Right {
+            pos.y += area.size.h / 2.0 - size.h / 2.0
+        }
+
+        Some(pos + self.working_area.loc)
     }
 
     #[cfg(test)]
@@ -1334,6 +1361,13 @@ impl<W: LayoutElement> FloatingSpace<W> {
         assert!(self.scale > 0.);
         assert!(self.scale.is_finite());
         assert_eq!(self.tiles.len(), self.data.len());
+
+        if let Some(pos) = self.pointer_position {
+            assert!(
+                pos.x.is_finite() && pos.y.is_finite(),
+                "pointer position must be finite"
+            );
+        }
 
         for (i, (tile, data)) in zip(&self.tiles, &self.data).enumerate() {
             use crate::layout::SizingMode;

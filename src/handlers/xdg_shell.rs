@@ -417,6 +417,7 @@ impl XdgShellHandler for State {
             mapped.set_needs_configure();
 
             let window = mapped.window.clone();
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_maximized(&window, true);
         } else if let Some(unmapped) = self.niri.unmapped_windows.get_mut(toplevel.wl_surface()) {
             match &mut unmapped.state {
@@ -499,6 +500,7 @@ impl XdgShellHandler for State {
             mapped.set_needs_configure();
 
             let window = mapped.window.clone();
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_maximized(&window, false);
         } else if let Some(unmapped) = self.niri.unmapped_windows.get_mut(toplevel.wl_surface()) {
             match &mut unmapped.state {
@@ -636,6 +638,7 @@ impl XdgShellHandler for State {
                 }
             }
 
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_fullscreen(&window, true);
         } else if let Some(unmapped) = self.niri.unmapped_windows.get_mut(toplevel.wl_surface()) {
             match &mut unmapped.state {
@@ -710,6 +713,7 @@ impl XdgShellHandler for State {
             mapped.set_needs_configure();
 
             let window = mapped.window.clone();
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_fullscreen(&window, false);
         } else if let Some(unmapped) = self.niri.unmapped_windows.get_mut(toplevel.wl_surface()) {
             match &mut unmapped.state {

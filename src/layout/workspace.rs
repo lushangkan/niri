@@ -1969,6 +1969,14 @@ impl<W: LayoutElement> Workspace<W> {
         self.floating.logical_to_size_frac(logical_pos)
     }
 
+    /// Updates the pointer position stored for placing new floating windows.
+    ///
+    /// The position is in workspace view coordinates, or `None` if the pointer isn't over this
+    /// workspace.
+    pub(super) fn update_pointer_position(&mut self, position: Option<Point<f64, Logical>>) {
+        self.floating.set_pointer_position(position);
+    }
+
     pub fn working_area(&self) -> Rectangle<f64, Logical> {
         self.working_area
     }

@@ -3223,6 +3223,16 @@ impl Niri {
         Some((output.clone(), ws))
     }
 
+    /// Samples the pointer for subsequent floating placement, before focus can warp it.
+    pub fn update_layout_pointer_position(&mut self) {
+        let location = self.seat.get_pointer().unwrap().current_location();
+        let position = self
+            .output_under(location)
+            .map(|(output, position)| (output.clone(), position));
+        self.layout
+            .update_pointer_position(position.as_ref().map(|(output, pos)| (output, *pos)));
+    }
+
     pub fn workspace_under_cursor(
         &self,
         extended_bounds: bool,

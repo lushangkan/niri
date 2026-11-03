@@ -921,6 +921,45 @@ impl<W: LayoutElement> Layout<W> {
         }
     }
 
+    /// Updates the pointer position stored for placing new floating windows relative to the
+    /// pointer.
+    ///
+    /// The layout never follows pointer motion. The compositor calls this immediately before a
+    /// placement operation, with the pointer position within its output, or `None` if the pointer
+    /// isn't over any output.
+    ///
+    /// Only the workspace rendered under the pointer keeps the position; every other workspace
+    /// forgets it. A window placed on a different output or workspace therefore falls back to the
+    /// regular default position instead of using a stale pointer position.
+    pub fn update_pointer_position(&mut self, position: Option<(&Output, Point<f64, Logical>)>) {
+        // Resolve the rendered workspace under the pointer, converting the position from output
+        // coordinates to workspace view coordinates, undoing the overview zoom.
+        let resolved = position.and_then(|(output, pos)| {
+            let mon = self.monitor_for_output(output)?;
+            let zoom = mon.overview_zoom();
+            let (ws, geo) = mon.workspace_under(pos)?;
+            let pos_within_workspace = (pos - geo.loc).downscale(zoom);
+            Some((ws.id(), pos_within_workspace))
+        });
+
+        for mon in self.monitors_mut() {
+            for ws in &mut mon.workspaces {
+                let pos = match resolved {
+                    Some((id, pos)) if ws.id() == id => Some(pos),
+                    _ => None,
+                };
+                ws.update_pointer_position(pos);
+            }
+        }
+
+        // Workspaces without an output can't be under the pointer.
+        if let MonitorSet::NoOutputs { workspaces } = &mut self.monitor_set {
+            for ws in workspaces {
+                ws.update_pointer_position(None);
+            }
+        }
+    }
+
     /// Adds a new window to the layout.
     ///
     /// Returns an output that the window was added to, if there were any outputs.

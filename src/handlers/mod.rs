@@ -570,6 +570,7 @@ impl ForeignToplevelHandler for State {
                 }
             }
 
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_fullscreen(&window, true);
         }
     }
@@ -577,6 +578,7 @@ impl ForeignToplevelHandler for State {
     fn unset_fullscreen(&mut self, wl_surface: WlSurface) {
         if let Some((mapped, _)) = self.niri.layout.find_window_and_output(&wl_surface) {
             let window = mapped.window.clone();
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_fullscreen(&window, false);
         }
     }
@@ -584,6 +586,7 @@ impl ForeignToplevelHandler for State {
     fn set_maximized(&mut self, wl_surface: WlSurface) {
         if let Some((mapped, _)) = self.niri.layout.find_window_and_output(&wl_surface) {
             let window = mapped.window.clone();
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_maximized(&window, true);
         }
     }
@@ -591,6 +594,7 @@ impl ForeignToplevelHandler for State {
     fn unset_maximized(&mut self, wl_surface: WlSurface) {
         if let Some((mapped, _)) = self.niri.layout.find_window_and_output(&wl_surface) {
             let window = mapped.window.clone();
+            self.niri.update_layout_pointer_position();
             self.niri.layout.set_maximized(&window, false);
         }
     }
