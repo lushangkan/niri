@@ -56,7 +56,7 @@ window-rule {
     // block-out-from "screen-capture"
     variable-refresh-rate true
     default-column-display "tabbed"
-    default-floating-position x=100 y=200 relative-to="bottom-left"
+    default-floating-position offset-x=100 offset-y=200 relative-to="bottom-left"
     scroll-factor 0.75
 
     focus-ring {
@@ -669,16 +669,19 @@ Afterward, the window will remember its last floating position.
 
 By default, new floating windows open at the center of the screen, and windows from the tiling layout open close to their visual screen position.
 
-The position uses logical coordinates relative to the working area.
+The `offset-x` and `offset-y` properties specify logical-pixel offsets from the selected anchor.
 By default, they are relative to the top-left corner of the working area, but you can change this by setting `relative-to` to one of these values: `top-left`, `top-right`, `bottom-left`, `bottom-right`, `top`, `bottom`, `left`, or `right`.
 
-For example, if you have a bar at the top, then `x=0 y=0` will put the top-left corner of the window directly below the bar.
-If instead you write `x=0 y=0 relative-to="top-right"`, then the top-right corner of the window will align with the top-right corner of the workspace, also directly below the bar.
+For example, if you have a bar at the top, then `offset-x=0 offset-y=0` will put the top-left corner of the window directly below the bar.
+If instead you write `offset-x=0 offset-y=0 relative-to="top-right"`, then the top-right corner of the window will align with the top-right corner of the workspace, also directly below the bar.
 When only one side is specified (e.g. top) the window will align to the center of that side.
 
-The coordinates change direction based on `relative-to`.
-For example, by default (top-left), `x=100 y=200` will put the window 100 pixels to the right and 200 pixels down from the top-left corner.
-If you use `x=100 y=200 relative-to="bottom-left"`, it will put the window 100 pixels to the right and 200 pixels *up* from the bottom-left corner.
+The offsets change direction based on `relative-to`.
+For example, by default (top-left), `offset-x=100 offset-y=200` will put the window 100 pixels to the right and 200 pixels down from the top-left corner.
+If you use `offset-x=100 offset-y=200 relative-to="bottom-left"`, it will put the window 100 pixels to the right and 200 pixels *up* from the bottom-left corner.
+
+In this fork, `offset-x` and `offset-y` replace the upstream property names `x` and `y` for every `relative-to` mode.
+Update existing rules to use the new names; the old names are not accepted.
 
 ```kdl
 // Open the Firefox picture-in-picture window at the bottom-left corner of the screen
@@ -686,7 +689,7 @@ If you use `x=100 y=200 relative-to="bottom-left"`, it will put the window 100 p
 window-rule {
     match app-id="firefox$" title="^Picture-in-Picture$"
 
-    default-floating-position x=32 y=32 relative-to="bottom-left"
+    default-floating-position offset-x=32 offset-y=32 relative-to="bottom-left"
 }
 ```
 
@@ -703,7 +706,7 @@ window-rule {
     // Open it as floating.
     open-floating true
     // Anchor to the top edge of the screen.
-    default-floating-position x=0 y=0 relative-to="top"
+    default-floating-position offset-x=0 offset-y=0 relative-to="top"
     // Half of the screen high.
     default-window-height { proportion 0.5; }
     // 80% of the screen wide.
@@ -713,8 +716,8 @@ window-rule {
 
 **Cursor-relative placement (available in this fork; not yet released upstream)**
 
-Set `relative-to="cursor"` to place the top-left corner of the window at the pointer position, plus the `x` and `y` offsets.
-Offsets use logical pixels: positive `x` moves right, positive `y` moves down, and negative values move in the opposite direction.
+Set `relative-to="cursor"` to place the top-left corner of the window at the pointer position, plus the `offset-x` and `offset-y` offsets.
+Offsets use logical pixels: positive `offset-x` moves right, positive `offset-y` moves down, and negative values move in the opposite direction.
 The position is clamped to keep the window inside the working area, preferring the top-left corner when the window is larger than the working area.
 
 This rule applies only when the pointer and the window are on the same output and workspace.
@@ -729,7 +732,7 @@ Floating dialogs retain the existing placement behavior relative to their parent
 window-rule {
     match app-id="^cursor-popup$"
     open-floating true
-    default-floating-position x=12 y=16 relative-to="cursor"
+    default-floating-position offset-x=12 offset-y=16 relative-to="cursor"
 }
 ```
 

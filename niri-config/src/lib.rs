@@ -888,7 +888,7 @@ mod tests {
                 open-focused true
                 default-window-height { fixed 500; }
                 default-column-display "tabbed"
-                default-floating-position x=100 y=-200 relative-to="bottom-left"
+                default-floating-position offset-x=100 offset-y=-200 relative-to="bottom-left"
 
                 focus-ring {
                     off
@@ -1861,10 +1861,10 @@ mod tests {
                     ),
                     default_floating_position: Some(
                         FloatingPosition {
-                            x: FloatOrInt(
+                            offset_x: FloatOrInt(
                                 100.0,
                             ),
-                            y: FloatOrInt(
+                            offset_y: FloatOrInt(
                                 -200.0,
                             ),
                             relative_to: BottomLeft,

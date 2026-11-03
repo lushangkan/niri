@@ -1299,7 +1299,7 @@ impl<W: LayoutElement> FloatingSpace<W> {
         let size = tile.tile_size();
         let area = self.working_area;
 
-        let mut pos = Point::from((config.x.0, config.y.0));
+        let mut pos = Point::from((config.offset_x.0, config.offset_y.0));
 
         if relative_to == RelativeTo::Cursor {
             // Place the window's top-left corner at the pointer plus the configured offset.

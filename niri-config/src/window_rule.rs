@@ -142,9 +142,9 @@ pub struct Match {
 #[derive(knuffel::Decode, Debug, Clone, Copy, PartialEq)]
 pub struct FloatingPosition {
     #[knuffel(property)]
-    pub x: FloatOrInt<-65535, 65535>,
+    pub offset_x: FloatOrInt<-65535, 65535>,
     #[knuffel(property)]
-    pub y: FloatOrInt<-65535, 65535>,
+    pub offset_y: FloatOrInt<-65535, 65535>,
     #[knuffel(property, default)]
     pub relative_to: RelativeTo,
 }

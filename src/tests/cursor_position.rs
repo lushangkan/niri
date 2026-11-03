@@ -43,7 +43,7 @@ layout {
 
 window-rule {
     open-floating true
-    default-floating-position x=40 y=30 relative-to="cursor"
+    default-floating-position offset-x=40 offset-y=30 relative-to="cursor"
 }
 "#;
 
@@ -60,7 +60,7 @@ layout {
 }
 
 window-rule {
-    default-floating-position x=40 y=30 relative-to="cursor"
+    default-floating-position offset-x=40 offset-y=30 relative-to="cursor"
 }
 "#;
 
@@ -265,7 +265,7 @@ layout {
 
 window-rule {
     open-floating true
-    default-floating-position x=40 y=30 relative-to="bottom-right"
+    default-floating-position offset-x=40 offset-y=30 relative-to="bottom-right"
 }
 "#,
     );

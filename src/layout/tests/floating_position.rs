@@ -14,11 +14,11 @@ fn cursor_rules(offset_x: f64, offset_y: f64) -> ResolvedWindowRules {
     position_rules(RelativeTo::Cursor, offset_x, offset_y)
 }
 
-fn position_rules(relative_to: RelativeTo, x: f64, y: f64) -> ResolvedWindowRules {
+fn position_rules(relative_to: RelativeTo, offset_x: f64, offset_y: f64) -> ResolvedWindowRules {
     ResolvedWindowRules {
         default_floating_position: Some(FloatingPosition {
-            x: FloatOrInt(x),
-            y: FloatOrInt(y),
+            offset_x: FloatOrInt(offset_x),
+            offset_y: FloatOrInt(offset_y),
             relative_to,
         }),
         ..ResolvedWindowRules::default()

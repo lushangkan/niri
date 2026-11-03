@@ -110,7 +110,7 @@ You can move them to a more convenient location by adding a window rule in your 
 ```kdl
 window-rule {
     match app-id="steam" title=r#"^notificationtoasts_\d+_desktop$"#
-    default-floating-position x=10 y=10 relative-to="bottom-right"
+    default-floating-position offset-x=10 offset-y=10 relative-to="bottom-right"
 }
 ```
 
