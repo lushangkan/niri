@@ -711,19 +711,19 @@ window-rule {
 }
 ```
 
-**相对于指针定位（此 fork 新增，上游尚未发布）**
+**Cursor-relative placement (available in this fork; not yet released upstream)**
 
-设置 `relative-to="cursor"`，窗口左上角会出现在指针位置，并加上 `x`、`y` 偏移。
-偏移使用逻辑像素：正 `x` 向右，正 `y` 向下；负值方向相反。
-窗口接近边缘时，会移回工作区域内；窗口大于工作区域时，优先保留左上角可见。
+Set `relative-to="cursor"` to place the top-left corner of the window at the pointer position, plus the `x` and `y` offsets.
+Offsets use logical pixels: positive `x` moves right, positive `y` moves down, and negative values move in the opposite direction.
+The position is clamped to keep the window inside the working area, preferring the top-left corner when the window is larger than the working area.
 
-只有指针与窗口位于同一输出、同一工作区时，此规则才生效。
-否则使用原有默认行为：新浮动窗口居中，平铺窗口切换为浮动时靠近原位置。
-工作区切换和总览期间，按指针下方实际显示的工作区判断，并转换为该工作区的逻辑坐标。
+This rule applies only when the pointer and the window are on the same output and workspace.
+Otherwise, the existing default placement is used: new floating windows are centered, and tiled windows entering the floating layout open close to their previous position.
+During workspace transitions and in the overview, the workspace rendered under the pointer is used, and the pointer position is converted to that workspace's logical coordinates.
 
-指针位置在窗口显示前或首次切换为浮动前获取，不受随后发生的焦点指针跳转影响。
-窗口已有记忆的浮动位置时，仍优先恢复该位置；移动指针不会移动已打开的窗口。
-浮动对话框仍遵循原有父窗口定位规则。
+The pointer position is sampled immediately before the window is mapped or first enters the floating layout, before any subsequent focus-related pointer warp.
+A remembered floating position still takes precedence; moving the pointer does not move an already-open window.
+Floating dialogs retain the existing placement behavior relative to their parent window.
 
 ```kdl
 window-rule {
